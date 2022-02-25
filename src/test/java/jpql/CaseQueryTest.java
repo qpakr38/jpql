@@ -104,6 +104,13 @@ public class CaseQueryTest {
     @Test
     @Transactional
     void coalesceTest() {
+        String memberName = "이름없는 회원";
+        memberSet(null, 10);
+        String query = "SELECT COALESCE(m.username, :memberName) FROM Member m";
+        String result = entityManager.createQuery(query, String.class)
+                .setParameter("memberName",memberName)
+                .getSingleResult();
+        assertThat(result).isEqualTo(memberName);
     }
 
     @Test
@@ -114,9 +121,9 @@ public class CaseQueryTest {
         String query = "SELECT new jpql.dto.MemberAdminDto(m.username, m.age, NULLIF(m.username,'관리자') as adminName) FROM Member m order by m.age";
         List<MemberAdminDto> resultList = entityManager.createQuery(query, MemberAdminDto.class).getResultList();
         for (MemberAdminDto memberAdminDto : resultList) {
-            if(memberAdminDto.getUsername().equals("관리자")) {
+            if (memberAdminDto.getUsername().equals("관리자")) {
                 assertThat(memberAdminDto.getAdminName()).isNull();
-            }else{
+            } else {
                 assertThat(memberAdminDto.getAdminName()).isEqualTo(memberAdminDto.getUsername());
             }
         }
